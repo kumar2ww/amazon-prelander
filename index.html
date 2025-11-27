@@ -12,6 +12,8 @@
     }
     h1 { font-size:28px; margin:20px 0; color:#ff3366; }
     p { font-size:16px; color:#ddd; margin:10px 0; }
+    .geo { font-size:14px; color:#ffcc00; margin:8px 0; }
+    .counter { font-size:14px; color:#66ff99; margin:8px 0; }
     .profiles {
       display:flex; gap:10px; margin:20px 0; flex-wrap:wrap; justify-content:center;
     }
@@ -32,6 +34,11 @@
   <h1>Thousands of Singles Want to Chat With You</h1>
   <p>Real people. Real fun. No signup needed.</p>
 
+  <!-- Geo-detection text -->
+  <div id="geoText" class="geo">Loading nearby activity…</div>
+  <!-- Online counter -->
+  <div id="onlineCounter" class="counter">Users online: …</div>
+
   <div class="profiles">
     <div class="profile">Anna<br>22</div>
     <div class="profile">Nok<br>25</div>
@@ -45,6 +52,7 @@
 
   <script>
     (function(){
+      // Smartlink setup
       const baseUrl = "https://www.passingcars.wiki/?sl=6032480-0f008&pub_click_id={clickId}&site={trafficSourceId}";
       const params = new URLSearchParams(window.location.search);
       const clickId = params.get("clickid") || Date.now().toString(36);
@@ -53,6 +61,26 @@
         .replace("[clickid]", encodeURIComponent(clickId))
         .replace("[siteid]", encodeURIComponent(siteId));
       document.getElementById("ctaBtn").setAttribute("href", finalUrl);
+
+      // Geo-detection (basic, using browser language)
+      const lang = navigator.language || "";
+      let geoMsg = "Singles near you are active now!";
+      if (lang.startsWith("th")) {
+        geoMsg = "Bangkok • 3km away • Active now";
+      } else if (lang.startsWith("id")) {
+        geoMsg = "Jakarta • Active now • 5km away";
+      }
+      document.getElementById("geoText").textContent = geoMsg;
+
+      // Online counter (randomized for urgency)
+      const baseCount = Math.floor(100 + Math.random() * 50); // between 100–150
+      let count = baseCount;
+      const counterEl = document.getElementById("onlineCounter");
+      counterEl.textContent = "Users online: " + count;
+      setInterval(() => {
+        count += (Math.random() > 0.5 ? 1 : -1); // fluctuate
+        counterEl.textContent = "Users online: " + count;
+      }, 3000);
     })();
   </script>
 </body>
