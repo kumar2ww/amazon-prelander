@@ -56,7 +56,8 @@ function getQueryParams() {
   var country = params.country || params.cc || params.country_code;
 
   // Base Mobidea offer (use YOUR exact mobidea link but WITHOUT tokens)
-  var base = "https://www.wineisblue.support/click?offer_id=34505&pub_id=262916";
+  var base = "https://www.wineisblue.support/click?offer_id=34505&pub_id=262916&pub_click_id={clickId}&site={trafficSourceId}
+";
 
   // Build query string and safely append tokens if present
   var qs = [];
@@ -79,3 +80,4 @@ function getQueryParams() {
 </script>
 </body>
 </html>
+
