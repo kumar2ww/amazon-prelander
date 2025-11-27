@@ -1,23 +1,81 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
 <head>
-<title>Reward Verification</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Verify to Claim — Amazon Reward</title>
 <style>
-body { font-family: Arial; padding: 20px; text-align: center; }
-.btn { background: #008CFF; color: white; padding: 15px; font-size: 20px; border-radius: 6px; display:block; margin-top:20px; text-decoration:none; }
+  body{font-family:Arial,Helvetica,sans-serif;margin:0;padding:24px;text-align:center;background:#f7f9fb}
+  .card{max-width:520px;margin:40px auto;padding:18px;border-radius:10px;background:#fff;box-shadow:0 6px 22px rgba(22,40,70,0.08)}
+  h1{margin:6px 0 12px;font-size:20px;color:#0b2b4a}
+  p{margin:8px 0;color:#3a4a5a}
+  .btn{display:inline-block;margin-top:18px;padding:14px 20px;border-radius:8px;text-decoration:none;font-size:18px;background:#008CFF;color:#fff}
+  .small{font-size:12px;color:#7b8794;margin-top:12px}
 </style>
 </head>
 <body>
+  <div class="card" role="main">
+    <h1>You Have 1 Reward Pending</h1>
+    <p>Verify your phone number to claim a free Amazon reward in your country.</p>
 
-<h2>Congratulations!</h2>
-<p>You may qualify for an Amazon Reward.</p>
-<p>Verify your phone number now.</p>
+    <!-- The anchor below will be filled by JS on load with the real offer URL -->
+    <a id="continueBtn" class="btn" href="#">Continue</a>
 
-<a class="btn" href="https://www.wineisblue.support/click?offer_id=34505&pub_id=262916&pub_click_id={clickid}&site={zoneid}">
-Continue
-</a>
+    <p class="small">By clicking Continue you will be redirected to a secure verification page.</p>
+  </div>
 
+<script>
+/**
+ * Parse query string into object
+ */
+function getQueryParams() {
+  var params = {};
+  var qs = window.location.search.substring(1);
+  if (!qs) return params;
+  qs.split("&").forEach(function(part){
+    var p = part.split("=");
+    var key = decodeURIComponent(p[0]||"").trim();
+    var val = decodeURIComponent(p[1]||"").trim();
+    if (key) params[key] = val;
+  });
+  return params;
+}
+
+/**
+ * Build the final offer URL using incoming params
+ * Adjust parameter names below according to what BeMob appends.
+ */
+(function(){
+  var params = getQueryParams();
+
+  // Common param names BeMob may append: clickid, pub_click_id, zoneid, site, siteid
+  var click = params.clickid || params.pub_click_id || params.pub_clickid || params.pub_clickId || params.pub_click || params.pub_click_id;
+  var zone  = params.zoneid  || params.zone || params.site || params.siteid || params.zone;
+
+  // If you also want to forward country or other params, capture them:
+  var country = params.country || params.cc || params.country_code;
+
+  // Base Mobidea offer (use YOUR exact mobidea link but WITHOUT tokens)
+  var base = "https://www.wineisblue.support/click?offer_id=34505&pub_id=262916";
+
+  // Build query string and safely append tokens if present
+  var qs = [];
+  if (click) qs.push("pub_click_id=" + encodeURIComponent(click));
+  if (zone)  qs.push("site=" + encodeURIComponent(zone));
+  if (country) qs.push("country=" + encodeURIComponent(country));
+
+  var finalUrl = base + (qs.length ? ("&" + qs.join("&")) : "");
+
+  // Set the anchor href to the final URL
+  var btn = document.getElementById("continueBtn");
+  btn.setAttribute("href", finalUrl);
+
+  // Optional: if you want the link to open in same tab (recommended), leave as-is.
+  // If you prefer new tab: btn.setAttribute("target", "_blank");
+
+  // For debugging only (remove in production):
+  // console.log("Final offer URL:", finalUrl);
+})();
+</script>
 </body>
 </html>
-
