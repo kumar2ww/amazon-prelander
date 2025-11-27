@@ -1,83 +1,112 @@
 <!doctype html>
-<html lang="en">
+<html>
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Verify to Claim — Amazon Reward</title>
+<title>Reward Verification</title>
 <style>
-  body{font-family:Arial,Helvetica,sans-serif;margin:0;padding:24px;text-align:center;background:#f7f9fb}
-  .card{max-width:520px;margin:40px auto;padding:18px;border-radius:10px;background:#fff;box-shadow:0 6px 22px rgba(22,40,70,0.08)}
-  h1{margin:6px 0 12px;font-size:20px;color:#0b2b4a}
-  p{margin:8px 0;color:#3a4a5a}
-  .btn{display:inline-block;margin-top:18px;padding:14px 20px;border-radius:8px;text-decoration:none;font-size:18px;background:#008CFF;color:#fff}
-  .small{font-size:12px;color:#7b8794;margin-top:12px}
+  body{font-family:Arial,Helvetica,sans-serif;padding:30px;text-align:center;background:#f6f8fb}
+  .card{max-width:520px;margin:40px auto;background:#fff;padding:30px;border-radius:12px;box-shadow:0 6px 24px rgba(0,0,0,0.07)}
+  .btn{display:inline-block;background:#018AFF;color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-size:18px}
+  p.small{color:#666;font-size:13px;margin-top:10px}
+  pre{white-space:pre-wrap;text-align:left;font-size:12px;color:#333}
 </style>
 </head>
 <body>
-  <div class="card" role="main">
-    <h1>You Have 1 Reward Pending</h1>
+  <div class="card">
+    <h2>You Have 1 Reward Pending</h2>
     <p>Verify your phone number to claim a free Amazon reward in your country.</p>
-
-    <!-- The anchor below will be filled by JS on load with the real offer URL -->
     <a id="continueBtn" class="btn" href="#">Continue</a>
-
     <p class="small">By clicking Continue you will be redirected to a secure verification page.</p>
+    <pre id="debug" style="display:none;margin-top:12px"></pre>
   </div>
 
 <script>
-/**
- * Parse query string into object
- */
-function getQueryParams() {
-  var params = {};
-  var qs = window.location.search.substring(1);
-  if (!qs) return params;
-  qs.split("&").forEach(function(part){
-    var p = part.split("=");
-    var key = decodeURIComponent(p[0]||"").trim();
-    var val = decodeURIComponent(p[1]||"").trim();
-    if (key) params[key] = val;
+function parseBemobDataString(s){
+  var obj = {};
+  if(!s) return obj;
+  var parts = s.split('..');
+  parts.forEach(function(part){
+    if(!part) return;
+    var kv = part.split('=');
+    var key = kv.shift();
+    var value = kv.join('=');
+    if(key && value !== undefined) obj[key] = value;
   });
-  return params;
+  return obj;
+}
+function parseQueryToObj(q){
+  var obj = {};
+  if(!q) return obj;
+  q = q.replace(/^\?/, '');
+  q.split('&').forEach(function(pair){
+    if(!pair) return;
+    var kv = pair.split('=');
+    var k = decodeURIComponent(kv.shift()||'');
+    var v = decodeURIComponent(kv.join('=')||'');
+    if(k) obj[k] = v;
+  });
+  return obj;
+}
+function getParam(name){
+  var re = new RegExp('[?&]'+name+'=([^&#]*)', 'i');
+  var m = window.location.href.match(re);
+  return m ? decodeURIComponent(m[1]) : null;
 }
 
-/**
- * Build the final offer URL using incoming params
- * Adjust parameter names below according to what BeMob appends.
- */
-(function(){
-  var params = getQueryParams();
+function buildFinalUrl(parsed){
+  // PRIORITIZE these keys based on your bemobdata:
+  // - click id -> 'l' (primary), fallback 'c' or 'clickid'
+  // - site/zone -> 'rl' (primary), fallback 'trafficSourceId' or 'site'
+  var clickVal = parsed['l'] || parsed['clickid'] || parsed['c'] || parsed['cid'] || parsed['rl'];
+  var siteVal  = parsed['rl'] || parsed['trafficSourceId'] || parsed['site'] || parsed['zoneid'] || parsed['s'];
 
-  // Common param names BeMob may append: clickid, pub_click_id, zoneid, site, siteid
-  var click = params.clickid || params.pub_click_id || params.pub_clickid || params.pub_clickId || params.pub_click || params.pub_click_id;
-  var zone  = params.zoneid  || params.zone || params.site || params.siteid || params.zone;
+  var base = 'https://www.wineisblue.support/click?offer_id=34505&pub_id=262916';
+  var suffix = '';
+  if(clickVal) suffix += '&pub_click_id=' + encodeURIComponent(clickVal);
+  if(siteVal)  suffix += '&site=' + encodeURIComponent(siteVal);
+  return base + suffix;
+}
 
-  // If you also want to forward country or other params, capture them:
-  var country = params.country || params.cc || params.country_code;
+(function init(){
+  var debugEl = document.getElementById('debug');
 
-  // Base Mobidea offer (use YOUR exact mobidea link but WITHOUT tokens)
-  var base = "https://www.wineisblue.support/click?offer_id=34505&pub_id=262916&pub_click_id={clickId}&site={trafficSourceId}
-";
+  var bem = getParam('bemobdata');
+  var parsed = {};
+  if(bem){
+    try{ bem = decodeURIComponent(bem); }catch(e){}
+    bem = bem.replace(/^#/, '');
+    parsed = parseBemobDataString(bem);
+  }
+  // also include normal query params (if any)
+  var qObj = parseQueryToObj(window.location.search);
+  for(var k in qObj) if(qObj.hasOwnProperty(k)) parsed[k] = parsed[k] || qObj[k];
 
-  // Build query string and safely append tokens if present
-  var qs = [];
-  if (click) qs.push("pub_click_id=" + encodeURIComponent(click));
-  if (zone)  qs.push("site=" + encodeURIComponent(zone));
-  if (country) qs.push("country=" + encodeURIComponent(country));
+  // if still empty, check hash for bemobdata
+  if(!bem && window.location.hash){
+    var h = window.location.hash.replace(/^#/, '');
+    try{ h = decodeURIComponent(h); }catch(e){}
+    var match = h.match(/bemobdata=([^&]*)/i);
+    if(match) parsed = Object.assign(parsed, parseBemobDataString(decodeURIComponent(match[1])));
+  }
 
-  var finalUrl = base + (qs.length ? ("&" + qs.join("&")) : "");
+  var finalUrl = buildFinalUrl(parsed);
+  var hasClick = finalUrl.indexOf('pub_click_id=') !== -1;
+  var hasSite  = finalUrl.indexOf('&site=') !== -1;
 
-  // Set the anchor href to the final URL
-  var btn = document.getElementById("continueBtn");
-  btn.setAttribute("href", finalUrl);
+  if(!hasClick || !hasSite){
+    debugEl.style.display = 'block';
+    debugEl.textContent = 'Parsed bemobdata: ' + JSON.stringify(parsed, null, 2) + '\n\nBuilt redirect: ' + finalUrl;
+  } else {
+    debugEl.style.display = 'none';
+  }
 
-  // Optional: if you want the link to open in same tab (recommended), leave as-is.
-  // If you prefer new tab: btn.setAttribute("target", "_blank");
+  document.getElementById('continueBtn').addEventListener('click', function(e){
+    e.preventDefault();
+    window.location.href = finalUrl;
+  }, false);
 
-  // For debugging only (remove in production):
-  // console.log("Final offer URL:", finalUrl);
 })();
 </script>
 </body>
 </html>
-
