@@ -2,222 +2,58 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>GitHub – Build and ship better software</title>
+  <title>Meet Singles Near You</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#0d1117" />
-  <meta name="description" content="A fast, lightweight prelander styled like GitHub. Click through to continue." />
-
-  <!-- Open Graph for previews -->
-  <meta property="og:title" content="GitHub – Build and ship better software" />
-  <meta property="og:description" content="A fast, lightweight prelander styled like GitHub. Click through to continue." />
-  <meta property="og:type" content="website" />
-  <meta property="og:image" content="https://github.githubassets.com/images/modules/open_graph/github-logo.png" />
-  <meta property="og:site_name" content="GitHub" />
-
   <style>
-    :root {
-      --bg: #0d1117;
-      --panel: #161b22;
-      --text: #c9d1d9;
-      --muted: #8b949e;
-      --accent: #2f81f7;
-      --accent-hover: #1f6feb;
-      --border: #30363d;
-      --success: #2ea043;
-    }
-    * { box-sizing: border-box; }
-    html, body { height: 100%; }
     body {
-      margin: 0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
-      background: radial-gradient(800px 400px at 10% 10%, #0b1220 0%, var(--bg) 40%), var(--bg);
-      color: var(--text);
+      margin:0; font-family:Arial, sans-serif; background:#111; color:#fff;
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      min-height:100vh; text-align:center;
     }
-    a { color: var(--accent); text-decoration: none; }
-    a:hover { color: var(--accent-hover); }
-    .wrap { max-width: 1100px; margin: 0 auto; padding: 24px; }
-    .nav {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 12px 0; border-bottom: 1px solid var(--border);
+    h1 { font-size:28px; margin:20px 0; color:#ff3366; }
+    p { font-size:16px; color:#ddd; margin:10px 0; }
+    .profiles {
+      display:flex; gap:10px; margin:20px 0; flex-wrap:wrap; justify-content:center;
     }
-    .brand { display: flex; align-items: center; gap: 10px; }
-    .brand svg { width: 28px; height: 28px; fill: #fff; }
-    .brand .name { font-weight: 600; letter-spacing: 0.2px; }
-    .nav .links { display: none; gap: 18px; font-size: 14px; color: var(--muted); }
-    .cta-nav {
-      display: inline-flex; align-items: center; gap: 10px;
-    }
-    .btn {
-      display: inline-flex; align-items: center; justify-content: center;
-      padding: 10px 16px; border-radius: 6px; font-weight: 600;
-      border: 1px solid var(--border); background: var(--panel); color: var(--text);
-    }
-    .btn-primary {
-      background: var(--accent); color: #fff; border-color: transparent;
-      box-shadow: 0 0 0 1px rgba(255,255,255,0.04) inset, 0 8px 24px rgba(47,129,247,0.25);
-    }
-    .btn-primary:hover { background: var(--accent-hover); }
-    .hero {
-      display: grid; grid-template-columns: 1fr; gap: 18px; padding: 32px 0;
-    }
-    .panel {
-      background: linear-gradient(180deg, rgba(22,27,34,0.6), rgba(22,27,34,0.9));
-      border: 1px solid var(--border);
-      border-radius: 12px; padding: 24px;
-    }
-    .headline {
-      font-size: clamp(28px, 5vw, 46px); font-weight: 800; line-height: 1.1;
-      letter-spacing: -0.4px;
-    }
-    .sub {
-      font-size: 16px; color: var(--muted); margin-top: 10px;
-    }
-    .badges {
-      display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px;
-    }
-    .badge {
-      border: 1px solid var(--border); color: var(--muted); font-size: 12px;
-      padding: 6px 10px; border-radius: 20px; background: #0e151f;
+    .profile {
+      width:80px; height:80px; border-radius:50%; background:#333;
+      display:flex; align-items:center; justify-content:center; font-size:12px; color:#aaa;
     }
     .cta {
-      display: flex; flex-wrap: wrap; gap: 12px; margin-top: 22px;
+      background:#ff3366; color:#fff; padding:14px 28px; border:none;
+      border-radius:6px; font-size:18px; font-weight:bold; cursor:pointer;
+      text-decoration:none; display:inline-block;
     }
-    .checklist { display: grid; gap: 10px; margin-top: 18px; }
-    .check { display: flex; gap: 10px; align-items: flex-start; color: var(--text); }
-    .check svg { width: 18px; height: 18px; fill: var(--success); margin-top: 3px; }
-    .footer {
-      border-top: 1px solid var(--border); margin-top: 28px; padding: 18px 0; color: var(--muted);
-      font-size: 13px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between;
-    }
-    .tiny { font-size: 12px; color: var(--muted); }
-    @media (min-width: 820px) {
-      .nav .links { display: flex; }
-      .hero { grid-template-columns: 1.2fr 1fr; }
-    }
+    .cta:hover { background:#e62e5c; }
+    .note { font-size:12px; color:#888; margin-top:20px; }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <header class="nav">
-      <div class="brand">
-        <!-- Octocat-like minimal mark -->
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M12 2c5.5 0 10 4.5 10 10 0 4.4-2.9 8.2-6.9 9.5-.5.1-.7-.2-.7-.5v-2.1c2.9.6 3.5-1.2 3.5-1.2.5-1.2 1.1-1.5 1.1-1.5.9-.6-.1-.6-.1-.6-1 .1-1.6 1.1-1.6 1.1-.9 1.6-2.5 1.1-3.2.8-.1-.7-.4-1.1-.7-1.3 2.3-.3 4.7-1.1 4.7-4.9 0-1.1-.4-2-1.1-2.8.1-.3.5-1.4-.1-2.9 0 0-.9-.3-2.9 1.1-.9-.2-1.8-.3-2.7-.3s-1.8.1-2.7.3C7 5.8 6.1 6.1 6.1 6.1c-.6 1.5-.2 2.6-.1 2.9-.7.8-1.1 1.7-1.1 2.8 0 3.8 2.4 4.6 4.7 4.9-.4.3-.8.9-.8 1.8v2.6c0 .3-.2.6-.7.5C4.9 20.2 2 16.4 2 12 2 6.5 6.5 2 12 2z"/>
-        </svg>
-        <span class="name">GitHub</span>
-      </div>
-      <nav class="links" aria-label="Primary">
-        <a href="#" aria-label="Features">Features</a>
-        <a href="#" aria-label="Security">Security</a>
-        <a href="#" aria-label="Team">Team</a>
-        <a href="#" aria-label="Enterprise">Enterprise</a>
-        <a href="#" aria-label="Explore">Explore</a>
-      </nav>
-      <div class="cta-nav">
-        <a id="ctaTop" class="btn btn-primary" href="#">Continue</a>
-      </div>
-    </header>
+  <h1>Thousands of Singles Want to Chat With You</h1>
+  <p>Real people. Real fun. No signup needed.</p>
 
-    <main class="hero" role="main">
-      <section class="panel">
-        <h1 class="headline">The home for all developers</h1>
-        <p class="sub">Secure, scalable collaboration. Ship faster with automation and insights. Continue to the offer to get started.</p>
-
-        <div class="badges">
-          <span class="badge">Open source</span>
-          <span class="badge">CI/CD</span>
-          <span class="badge">Security</span>
-          <span class="badge">Cloud-native</span>
-        </div>
-
-        <div class="cta">
-          <a id="ctaMain" class="btn btn-primary" href="#">Continue</a>
-          <a id="ctaAlt" class="btn" href="#">Learn more</a>
-        </div>
-
-        <div class="checklist" aria-label="Highlights">
-          <div class="check">
-            <svg viewBox="0 0 24 24"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>
-            <div>
-              <strong>Trusted workflows:</strong> Automate tests, builds, and releases with proven pipelines.
-              <div class="tiny">No downloads required. Works across devices.</div>
-            </div>
-          </div>
-          <div class="check">
-            <svg viewBox="0 0 24 24"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>
-            <div>
-              <strong>Secure by design:</strong> Policy controls, audit logs, and granular permissions.
-              <div class="tiny">Enterprise-ready. Role-based access.</div>
-            </div>
-          </div>
-          <div class="check">
-            <svg viewBox="0 0 24 24"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>
-            <div>
-              <strong>Developer-first:</strong> Built for speed, collaboration, and code quality.
-              <div class="tiny">Integrates with your favorite tools.</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <aside class="panel">
-        <h2 style="margin:0 0 12px 0; font-size:20px;">Quick start</h2>
-        <ol style="margin:0 0 12px 0; padding-left:18px;">
-          <li>Review highlights</li>
-          <li>Click Continue</li>
-          <li>Complete the next step</li>
-        </ol>
-        <div class="tiny">By continuing, you accept standard internet cookies used for analytics.</div>
-      </aside>
-    </main>
-
-    <footer class="footer" role="contentinfo">
-      <div>© GitHub, Inc.</div>
-      <div class="tiny">Terms • Privacy • Security</div>
-    </footer>
+  <div class="profiles">
+    <div class="profile">Anna<br>22</div>
+    <div class="profile">Nok<br>25</div>
+    <div class="profile">Rina<br>23</div>
+    <div class="profile">Adi<br>27</div>
   </div>
 
-  <!-- Minimal tracking & dynamic parameters -->
+  <a id="ctaBtn" class="cta" href="#">Start Chat</a>
+
+  <p class="note">By continuing, you accept cookies used for analytics.</p>
+
   <script>
-    (function() {
-      // Base offer URL (edit as needed)
+    (function(){
       const baseUrl = "https://www.passingcars.wiki/?sl=6032480-0f008&pub_click_id={clickId}&site={trafficSourceId}";
-
-      // Helper: get query params from current URL or generate a simple click id
       const params = new URLSearchParams(window.location.search);
-      const clickId = params.get("clickid") || (Date.now().toString(36) + "-" + Math.random().toString(36).slice(2,8));
-      const siteId  = params.get("siteid")  || "GH-landing";
-
-      // Compose the final URL, preserving any extra UTM from the current page
-      const finalParams = new URLSearchParams({
-        pub_click_id: clickId,
-        site: siteId
-      });
-
-      // Optional: pass-through UTM parameters
-      ["utm_source","utm_medium","utm_campaign","utm_content"].forEach(k => {
-        if (params.has(k)) finalParams.set(k, params.get(k));
-      });
-
+      const clickId = params.get("clickid") || Date.now().toString(36);
+      const siteId  = params.get("siteid")  || "dating-prelander";
       const finalUrl = baseUrl
         .replace("[clickid]", encodeURIComponent(clickId))
-        .replace("[siteid]", encodeURIComponent(siteId)) +
-        (finalParams.toString() ? (baseUrl.includes("?") ? "&" : "?") + finalParams.toString() : "");
-
-      // Attach to CTAs
-      ["ctaTop","ctaMain","ctaAlt"].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.setAttribute("href", finalUrl);
-      });
-
-      // Basic engagement ping (non-invasive, no external call)
-      const engaged = () => {
-        sessionStorage.setItem("gh_prelander_engaged", "1");
-      };
-      document.getElementById("ctaMain")?.addEventListener("click", engaged);
-      document.getElementById("ctaTop")?.addEventListener("click", engaged);
+        .replace("[siteid]", encodeURIComponent(siteId));
+      document.getElementById("ctaBtn").setAttribute("href", finalUrl);
     })();
   </script>
 </body>
 </html>
-
