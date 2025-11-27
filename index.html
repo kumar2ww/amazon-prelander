@@ -1,11 +1,131 @@
-// Base smartlink URL
-var base = 'https://www.passingcars.wiki/?sl=6032480-0f008';
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Verify to Claim Reward</title>
+<style>
+  body{font-family:Arial,Helvetica,sans-serif;background:#f6f8fb;margin:0;padding:30px}
+  .card{max-width:640px;margin:40px auto;background:#fff;padding:28px;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,0.06);text-align:center}
+  h2{margin:0 0 10px;font-size:22px}
+  p{color:#444;margin:10px 0 18px}
+  .btn{display:inline-block;background:#007bff;color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-size:18px}
+  .debug{margin-top:12px;color:#333;font-size:13px;white-space:pre-wrap;text-align:left;display:none}
+  .small{color:#777;font-size:13px;margin-top:12px}
+</style>
+</head>
+<body>
+  <div class="card">
+    <h2>You Have 1 Reward Pending</h2>
+    <p>Verify your phone number to claim a free reward in your country.</p>
+    <a id="continueBtn" class="btn" href="#">Continue</a>
+    <p class="small">By clicking Continue you will be redirected to a secure verification page.</p>
+    <div id="debug" class="debug"></div>
+  </div>
 
-// Attach tracking parameters
-var suffix =
-    '&pub_click_id=' + encodeURIComponent(clickVal) +
-    '&site=' + encodeURIComponent(siteVal) +
-    '&pub_sub_id=' + encodeURIComponent(clickVal);
+<script>
+/* 
+  Prelander for Smartlink:
+  Base smartlink: https://www.passingcars.wiki/?sl=6032480-0f008
+  Appends: &pub_click_id=... &site=... &pub_sub_id=...
+  Works by reading bemobdata (BeMob) or normal query params.
+*/
 
-// Final redirect URL
-var finalUrl = base + suffix;
+// parse bemobdata format (pairs separated by ".." like "c=.....l=.....rl=...")
+function parseBemobDataString(s){
+  var obj = {};
+  if(!s) return obj;
+  var parts = s.split('..');
+  parts.forEach(function(part){
+    if(!part) return;
+    var kv = part.split('=');
+    var k = kv.shift();
+    var v = kv.join('=');
+    if(k) obj[k] = v;
+  });
+  return obj;
+}
+
+// parse normal query string ?a=1&b=2
+function parseQueryToObj(q){
+  var obj = {};
+  if(!q) return obj;
+  q = q.replace(/^\?/, '');
+  q.split('&').forEach(function(pair){
+    if(!pair) return;
+    var kv = pair.split('=');
+    var k = decodeURIComponent(kv.shift()||'');
+    var v = decodeURIComponent(kv.join('=')||'');
+    if(k) obj[k] = v;
+  });
+  return obj;
+}
+
+function getParam(name){
+  var re = new RegExp('[?&]'+name+'=([^&#]*)', 'i');
+  var m = window.location.href.match(re);
+  return m ? decodeURIComponent(m[1]) : null;
+}
+
+(function init(){
+  var debugEl = document.getElementById('debug');
+
+  // 1) read bemobdata if present
+  var bem = getParam('bemobdata');
+  var parsed = {};
+  if(bem){
+    try{ bem = decodeURIComponent(bem); } catch(e){}
+    bem = bem.replace(/^#/, '');
+    parsed = parseBemobDataString(bem);
+  }
+
+  // 2) also include normal query params
+  var qObj = parseQueryToObj(window.location.search);
+  for(var k in qObj) if(qObj.hasOwnProperty(k)) parsed[k] = parsed[k] || qObj[k];
+
+  // 3) if bemobdata not present, try hash with bemobdata=
+  if(!bem && window.location.hash){
+    var h = window.location.hash.replace(/^#/, '');
+    try{ h = decodeURIComponent(h); }catch(e){}
+    var match = h.match(/bemobdata=([^&]*)/i);
+    if(match) parsed = Object.assign(parsed, parseBemobDataString(decodeURIComponent(match[1])));
+  }
+
+  // 4) determine clickVal and siteVal using common keys
+  // click keys: prefer 'l' (BeMob click), then 'clickid','c','cid'
+  var clickVal = parsed['l'] || parsed['clickid'] || parsed['c'] || parsed['cid'] || parsed['rl'];
+  // site/zone keys: prefer 'rl' (BeMob redirect/zone), then 'trafficSourceId','site','zoneid','s'
+  var siteVal  = parsed['rl'] || parsed['trafficSourceId'] || parsed['site'] || parsed['zoneid'] || parsed['s'];
+
+  // 5) build smartlink final URL
+  var base = 'https://www.passingcars.wiki/?sl=6032480-0f008';
+  var suffix = '';
+  if(clickVal) suffix += '&pub_click_id=' + encodeURIComponent(clickVal);
+  if(siteVal)  suffix += '&site=' + encodeURIComponent(siteVal);
+  // also pass pub_sub_id (using clickVal again, change if you need another token)
+  if(clickVal) suffix += '&pub_sub_id=' + encodeURIComponent(clickVal);
+
+  var finalUrl = base + suffix;
+
+  // show debug only if values missing (helps troubleshooting)
+  var hasClick = finalUrl.indexOf('pub_click_id=') !== -1;
+  var hasSite  = finalUrl.indexOf('&site=') !== -1;
+  if(!hasClick || !hasSite){
+    debugEl.style.display = 'block';
+    debugEl.innerText = 'Parsed bemobdata: ' + JSON.stringify(parsed, null, 2) + '\n\nBuilt redirect: ' + finalUrl;
+  } else {
+    debugEl.style.display = 'none';
+  }
+
+  // attach click handler
+  var btn = document.getElementById('continueBtn');
+  btn.addEventListener('click', function(e){
+    e.preventDefault();
+    // if finalUrl lacks values, still redirect (network may handle), but ideally parsed values exist
+    window.location.href = finalUrl;
+  }, false);
+
+})();
+</script>
+</body>
+</html>
